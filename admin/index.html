@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Princessware · Panel de Administración</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- PANTALLA DE LOGIN -->
+  <div id="login-container" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="../assets/logo-clean.png" alt="Princessware Logo" class="brand-logo">
+        <h1 class="brand-title">PRINCESSWARE</h1>
+        <p class="brand-subtitle">Panel de Control</p>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Usuario</label>
+          <input type="text" id="username" autocomplete="username" placeholder="Ingresá tu usuario" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" autocomplete="current-password" placeholder="Ingresá tu contraseña" required>
+        </div>
+        <div id="login-error" class="alert-danger hidden"></div>
+        <button type="submit" class="btn-metal btn-login">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE ADMINISTRACIÓN (CMS) -->
+  <div id="admin-container" class="admin-wrapper hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/logo-clean.png" alt="Princessware" class="logo-sidebar">
+        <div class="sidebar-brand-text">
+          <span class="brand-name">PRINCESSWARE</span>
+          <span class="brand-tag">Administración</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <button class="nav-btn active" data-target="dashboard">
+              <span class="icon">📊</span> Dashboard
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="orders">
+              <span class="icon">📦</span> Pedidos
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="leads">
+              <span class="icon">👥</span> Prospectos
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="users">
+              <span class="icon">🧑‍💼</span> Usuarios
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="interests">
+              <span class="icon">👁</span> Intereses
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="settings">
+              <span class="icon">⚙️</span> Configuración
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="categories">
+              <span class="icon">📁</span> Categorías
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="products">
+              <span class="icon">🍳</span> Productos
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="recipes">
+              <span class="icon">📖</span> Recetas
+            </button>
+          </li>
+          <li>
+            <button class="nav-btn" data-target="benefits">
+              <span class="icon">✨</span> Beneficios
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="btn-logout" class="btn-ghost">
+          <span class="icon">🚪</span> Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- DASHBOARD TAB -->
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="panel-header">
+          <h2>Hola, <span id="user-display">Admin</span></h2>
+          <p>Este es el panel donde podés gestionar todo el catálogo de Princessware.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-products">-</div>
+            <div class="stat-label">Productos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-categories">-</div>
+            <div class="stat-label">Categorías</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-recipes">-</div>
+            <div class="stat-label">Recetas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-orders">-</div>
+            <div class="stat-label">Pedidos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-users">-</div>
+            <div class="stat-label">Usuarios</div>
+          </div>
+        </div>
+
+        <!-- GRÁFICOS VISUALES -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Pedidos y Ventas (Últimos 7 días)</h3>
+            <div class="chart-container">
+              <canvas id="salesChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>Distribución de Productos</h3>
+            <div class="chart-container">
+              <canvas id="categoriesChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-instructions" style="margin-top: 2rem;">
+          <h3>¿Cómo administrar el sitio?</h3>
+          <p>Cualquier cambio que realices en este panel (agregar un producto, cambiar el número de WhatsApp, modificar una receta) se guardará de inmediato y actualizará el archivo <code>js/data.js</code> del sitio en tiempo real.</p>
+          <div class="instruction-box">
+            <p><strong>💡 Recordá:</strong> Si usás Netlify, Vercel o Github Pages, podés copiar o subir los archivos del sitio actualizados una vez guardados tus cambios.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS TAB -->
+      <section id="tab-orders" class="tab-panel">
+        <div class="panel-header-actions">
+          <div class="panel-header">
+            <h2>Gestión de Pedidos</h2>
+            <p>Monitoreá los pedidos registrados desde el checkout de WhatsApp en la tienda.</p>
+          </div>
+          <div class="filter-bar glass-card" style="margin-bottom:0; padding:10px 20px;">
+            <label for="filter-order-status">Filtrar por Estado:</label>
+            <select id="filter-order-status">
+              <option value="all">Todos los estados</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Entregado">Entregado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nº Pedido</th>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Teléfono</th>
+                  <th>Monto Total</th>
+                  <th>Estado del Pedido</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS TAB -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="panel-header">
+          <h2>Configuración General</h2>
+          <p>Editá los datos globales de la marca y de contacto para los clientes.</p>
+        </div>
+        
+        <div class="glass-card max-width-md">
+          <form id="settings-form">
+            <div class="form-group">
+              <label>Modo de Funcionamiento del Sitio</label>
+              <div style="display: flex; gap: 20px; margin-top: 6px; color: #fff;">
+                <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; font-size: 0.9rem;">
+                  <input type="radio" name="set-catalogMode" value="true" id="set-catalogMode-true" style="width:auto; margin:0; cursor:pointer;"> Modo Catálogo (Consultas a WhatsApp)
+                </label>
+                <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; font-size: 0.9rem;">
+                  <input type="radio" name="set-catalogMode" value="false" id="set-catalogMode-false" style="width:auto; margin:0; cursor:pointer;"> Tienda Activa (Carrito y Checkout)
+                </label>
+              </div>
+              <small class="form-help">Si activás el Modo Catálogo, se ocultará el carrito de compras, el drawer lateral y los botones de compra directa, permitiendo a los clientes realizar consultas personalizadas por WhatsApp por cada producto.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-whatsapp">Número de WhatsApp</label>
+              <input type="text" id="set-whatsapp" placeholder="Ej: 5491100000000" required>
+              <small class="form-help">Formato internacional completo, sin el símbolo "+", sin guiones ni espacios.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-instagram">Usuario de Instagram</label>
+              <input type="text" id="set-instagram" placeholder="Ej: princessware.oficial" required>
+              <small class="form-help">Ingresá el usuario de la cuenta oficial sin el "@".</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-freeShip">Envío Gratis (Monto mínimo)</label>
+              <div class="input-currency-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="set-freeShip" min="0" placeholder="Ej: 800000" required>
+              </div>
+              <small class="form-help">Monto mínimo en pesos argentinos para activar la barra de envío gratis.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="set-favUpsellText">Mensaje de Upsell (Favoritos)</label>
+              <textarea id="set-favUpsellText" rows="3" placeholder="Mensaje amigable antes de comprar..." required style="width: 100%; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 12px; background: rgba(22, 35, 58, 0.4); color: #fff; font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box;"></textarea>
+              <small class="form-help">El texto que saldrá en la ventana emergente ofreciendo sumar favoritos a último momento antes de finalizar la compra.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-favUpsellDiscount">Descuento de Favorito (%)</label>
+              <div class="input-currency-wrapper">
+                <span class="currency-symbol">%</span>
+                <input type="number" id="set-favUpsellDiscount" min="0" max="100" placeholder="Ej: 10" required>
+              </div>
+              <small class="form-help">Porcentaje de descuento aplicado sobre el precio del producto favorito si el cliente decide sumarlo al pedido desde el pop-up de upsell.</small>
+            </div>
+
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #fff; margin: 1.8rem 0 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">Tarifas de Envío</h3>
+            
+            <div class="form-group">
+              <label for="set-shipCABA">Costo Envío CABA</label>
+              <div class="input-currency-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="set-shipCABA" min="0" placeholder="Ej: 15000" required>
+              </div>
+              <small class="form-help">Costo de envío para Ciudad Autónoma de Buenos Aires.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-shipProvincias">Costo Envío Buenos Aires / GBA</label>
+              <div class="input-currency-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="set-shipProvincias" min="0" placeholder="Ej: 22000" required>
+              </div>
+              <small class="form-help">Costo de envío para Gran Buenos Aires y Provincia de Buenos Aires.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-shipInterior">Costo Envío Interior del País</label>
+              <div class="input-currency-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="set-shipInterior" min="0" placeholder="Ej: 29000" required>
+              </div>
+              <small class="form-help">Costo de envío para provincias del interior del país.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="set-shipExterior">Costo Envío Exterior / Internacional</label>
+              <div class="input-currency-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="set-shipExterior" min="0" placeholder="Ej: 79000" required>
+              </div>
+              <small class="form-help">Costo de envío para el exterior del país.</small>
+            </div>
+
+            <button type="submit" class="btn-metal">Guardar Configuración</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- LEADS TAB (PROSPECTOS) -->
+      <section id="tab-leads" class="tab-panel">
+        <div class="panel-header-actions">
+          <div class="panel-header">
+            <h2>Prospectos (Favoritos Guardados)</h2>
+            <p>Listado de interesados que guardaron sus favoritos con sus datos de contacto y no llegaron a concretar la compra (o ya compraron).</p>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha Registro</th>
+                  <th>Cliente</th>
+                  <th>Contacto</th>
+                  <th>Productos Interesados</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="leads-table-body">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- USERS TAB -->
+      <section id="tab-users" class="tab-panel">
+        <div class="panel-header-actions">
+          <div class="panel-header">
+            <h2>Usuarios Registrados</h2>
+            <p>Compradores que crearon cuenta en el sitio. Usá estos datos para campañas de Google y email marketing.</p>
+          </div>
+          <a id="btn-export-users" class="btn-metal btn-icon" href="/api/users/export" download>
+            <span>⬇</span> Exportar CSV
+          </a>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Dirección</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTERESTS TAB -->
+      <section id="tab-interests" class="tab-panel">
+        <div class="panel-header">
+          <h2>Intereses Anónimos</h2>
+          <p>Visitantes sin cuenta que guardaron favoritos. Cada fila es una sesión única de navegación.</p>
+        </div>
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Última actividad</th>
+                  <th>Productos de interés</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody id="interests-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CATEGORIES TAB -->
+      <section id="tab-categories" class="tab-panel">
+        <div class="panel-header-actions">
+          <div class="panel-header">
+            <h2>Categorías</h2>
+            <p>Gestioná las categorías que agrupan tus productos en la tienda.</p>
+          </div>
+          <button class="btn-metal btn-icon" id="btn-add-cat">
+            <span>+</span> Nueva Categoría
+          </button>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Imagen</th>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="categories-table-body">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS TAB -->
+      <section id="tab-products" class="tab-panel">
+        <div class="panel-header-actions">
+          <div class="panel-header">
+            <h2>Productos</h2>
+            <p>Administrá el catálogo de piezas y baterías en venta.</p>
+          </div>
+          <button class="btn-metal btn-icon" id="btn-add-product">
+            <span>+</span> Nuevo Producto
+          </button>
+        </div>
+
+        <!-- Filtro rápido por categoría -->
+        <div class="filter-bar glass-card">
+          <label for="filter-prod-cat">Filtrar por Categoría:</label>
+          <select id="filter-prod-cat">
+            <option value="all">Todas las categorías</option>
+            <!-- Se rellena por JS -->
+          </select>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Imagen</th>
+                  <th>SKU / ID</th>
+                  <th>Nombre</th>
+                  <th>Medida / Piezas</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Etiqueta</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECIPES TAB -->
+      <section id="tab-recipes" class="tab-panel">
+        <div class="panel-header-actions">
+          <div class="panel-header">
+            <h2>Recetas</h2>
+            <p>Gestioná las recetas saludables que aparecen en la sección correspondiente.</p>
+          </div>
+          <button class="btn-metal btn-icon" id="btn-add-recipe">
+            <span>+</span> Nueva Receta
+          </button>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Imagen</th>
+                  <th>Etiqueta</th>
+                  <th>Título</th>
+                  <th>Tiempo</th>
+                  <th>Dificultad</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="recipes-table-body">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- BENEFITS TAB -->
+      <section id="tab-benefits" class="tab-panel">
+        <div class="panel-header">
+          <h2>Beneficios Clave</h2>
+          <p>Editá los pilares destacados que se visualizan en la Home del sitio.</p>
+        </div>
+
+        <div class="benefits-grid" id="benefits-container">
+          <!-- Rellenado por JS -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL CATEGORÍA -->
+  <div id="modal-category" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-category-title">Nueva Categoría</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="category-form">
+        <div class="form-group">
+          <label for="cat-id">ID de Categoría</label>
+          <input type="text" id="cat-id" placeholder="Ej: ollas" required>
+          <small class="form-help">Identificador único. Usar solo letras minúsculas (sin acentos, espacios ni guiones).</small>
+        </div>
+        <div class="form-group">
+          <label for="cat-name">Nombre de Categoría</label>
+          <input type="text" id="cat-name" placeholder="Ej: Ollas & Cacerolas" required>
+        </div>
+        <div class="form-group">
+          <label for="cat-desc">Descripción</label>
+          <input type="text" id="cat-desc" placeholder="Ej: Cocción profunda y uniforme" required>
+        </div>
+        <div class="form-group">
+          <label>Imagen de Portada</label>
+          <div class="upload-area">
+            <input type="file" id="cat-image-file" accept="image/*" class="hidden">
+            <input type="text" id="cat-image" placeholder="URL de la imagen o subí un archivo" required readonly>
+            <button type="button" class="btn-metal btn-upload" onclick="document.getElementById('cat-image-file').click()">
+              Subir Imagen
+            </button>
+          </div>
+          <div class="preview-box hidden" id="cat-preview-box">
+            <img src="" alt="Vista previa" id="cat-preview-img">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-cancel">Cancelar</button>
+          <button type="submit" class="btn-metal">Guardar Categoría</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PRODUCTO -->
+  <div id="modal-product" class="modal-overlay hidden">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-product-title">Nuevo Producto</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="product-form">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="prod-id">SKU (Código único alfanumérico)</label>
+            <div class="upload-area">
+              <input type="text" id="prod-id" placeholder="Ej: PW-OLL-PRO-24" required>
+              <button type="button" class="btn-metal btn-upload" id="btn-gen-sku">Generar SKU</button>
+            </div>
+            <small class="form-help">Código interno (Ej: PW-OLL-PRO-24). Hacé clic en "Generar SKU" para crearlo.</small>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="prod-name">Nombre</label>
+            <input type="text" id="prod-name" placeholder="Ej: Set Familiar Princessware" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="prod-pieces">Medida / Piezas</label>
+            <input type="text" id="prod-pieces" placeholder="Ej: 18 piezas o 24 cm" required>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="prod-cat">Categoría</label>
+            <select id="prod-cat" required>
+              <option value="">Seleccioná una categoría</option>
+              <!-- Se rellena por JS -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="prod-price">Precio</label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="prod-price" min="0" placeholder="Ej: 1290000" required>
+            </div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="prod-compare">Precio de Comparación (Antes)</label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="prod-compare" min="0" placeholder="Ej: 1850000">
+            </div>
+            <small class="form-help">Opcional. Para tachar y mostrar oferta.</small>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="prod-badge-select">Etiqueta Destacada</label>
+            <select id="prod-badge-select">
+              <option value="">Ninguna</option>
+              <option value="Más vendido">Más vendido</option>
+              <option value="Oferta">Oferta</option>
+              <option value="Nuevo">Nuevo</option>
+              <option value="Últimas unidades">Últimas unidades</option>
+              <option value="Recomendado">Recomendado</option>
+              <option value="custom">Personalizada...</option>
+            </select>
+            <input type="text" id="prod-badge" placeholder="Escribí etiqueta personalizada" class="hidden" style="margin-top: 8px;">
+            <small class="form-help">Badge visible sobre el producto.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="prod-blurb">Resumen Corto (Blurb)</label>
+          <input type="text" id="prod-blurb" placeholder="Ej: La batería completa para toda la familia..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="prod-desc">Descripción Larga</label>
+          <textarea id="prod-desc" rows="4" placeholder="Describe detalladamente el producto y los beneficios de cocinar con él..." required></textarea>
+        </div>
+
+        <!-- ESPECIFICACIONES -->
+        <fieldset class="form-fieldset">
+          <legend>Especificaciones Técnicas</legend>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="prod-spec-material">Material</label>
+              <input type="text" id="prod-spec-material" value="Acero quirúrgico 18/8">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="prod-spec-apto">Cocinas Aptas</label>
+              <input type="text" id="prod-spec-apto" value="Gas, eléctrica, vitrocerámica e inducción">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="prod-spec-incluye">¿Qué incluye?</label>
+              <input type="text" id="prod-spec-incluye" placeholder="Ej: 8 ollas, 4 tapas...">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="prod-spec-garantia">Garantía</label>
+              <input type="text" id="prod-spec-garantia" value="De por vida">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- IMÁGENES -->
+        <div class="form-row">
+          <!-- Imagen Principal -->
+          <div class="form-group col-md-6">
+            <label>Imagen Principal</label>
+            <div class="upload-area">
+              <input type="file" id="prod-image-file" accept="image/*" class="hidden">
+              <input type="text" id="prod-image" placeholder="Imagen principal..." required readonly>
+              <button type="button" class="btn-metal btn-upload" onclick="document.getElementById('prod-image-file').click()">
+                Subir Foto
+              </button>
+            </div>
+            <div class="preview-box hidden" id="prod-preview-box">
+              <img src="" alt="Vista previa" id="prod-preview-img">
+            </div>
+          </div>
+
+          <!-- Galería -->
+          <div class="form-group col-md-6">
+            <label>Imágenes de la Galería</label>
+            <div class="upload-area">
+              <input type="file" id="prod-gallery-files" accept="image/*" multiple class="hidden">
+              <button type="button" class="btn-metal btn-upload" onclick="document.getElementById('prod-gallery-files').click()">
+                Subir Fotos a Galería
+              </button>
+            </div>
+            <div class="gallery-previews" id="gallery-previews-container">
+              <!-- Se listan las fotos subidas con botón borrar -->
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-cancel">Cancelar</button>
+          <button type="submit" class="btn-metal">Guardar Producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL RECETA -->
+  <div id="modal-recipe" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-recipe-title">Nueva Receta</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="recipe-form">
+        <div class="form-group">
+          <label for="rec-tag">Etiqueta (Tag)</label>
+          <input type="text" id="rec-tag" placeholder="Ej: Sin aceite o Postres" required>
+        </div>
+        <div class="form-group">
+          <label for="rec-title">Título de Receta</label>
+          <input type="text" id="rec-title" placeholder="Ej: Pollo dorado al natural" required>
+        </div>
+        <div class="form-group">
+          <label for="rec-desc">Instrucciones / Resumen</label>
+          <textarea id="rec-desc" rows="3" placeholder="Describe brevemente la preparación..." required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="rec-time">Tiempo de cocción</label>
+            <input type="text" id="rec-time" placeholder="Ej: 35 min" required>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="rec-level">Nivel de Dificultad</label>
+            <select id="rec-level" required>
+              <option value="Fácil">Fácil</option>
+              <option value="Media">Media</option>
+              <option value="Difícil">Difícil</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Imagen del Plato</label>
+          <div class="upload-area">
+            <input type="file" id="rec-image-file" accept="image/*" class="hidden">
+            <input type="text" id="rec-image" placeholder="Imagen..." required readonly>
+            <button type="button" class="btn-metal btn-upload" onclick="document.getElementById('rec-image-file').click()">
+              Subir Imagen
+            </button>
+          </div>
+          <div class="preview-box hidden" id="rec-preview-box">
+            <img src="" alt="Vista previa" id="rec-preview-img">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-cancel">Cancelar</button>
+          <button type="submit" class="btn-metal">Guardar Receta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE DE PEDIDO -->
+  <div id="modal-order-details" class="modal-overlay hidden">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3>Detalle de Pedido <span id="detail-order-id">#1001</span></h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 2.2rem;">
+        <div class="order-detail-section" style="margin-bottom: 2rem;">
+          <h4 style="font-family: var(--font-title); font-size: 1.4rem; color: var(--color-azul-royal); margin-bottom: 10px;">Datos del Cliente</h4>
+          <div style="background: rgba(11, 17, 26, 0.4); padding: 1.25rem; border-radius: 6px; border: var(--border-glass);">
+            <p style="margin-bottom: 8px; font-size: 0.95rem;"><strong>Nombre y Apellido:</strong> <span id="detail-client-name">-</span></p>
+            <p style="margin-bottom: 8px; font-size: 0.95rem;"><strong>Email:</strong> <span id="detail-client-email">-</span></p>
+            <p style="margin-bottom: 8px; font-size: 0.95rem;"><strong>Teléfono:</strong> <span id="detail-client-phone">-</span></p>
+            <p style="margin-bottom: 8px; font-size: 0.95rem;"><strong>Método de Entrega:</strong> <span id="detail-shipping-method">-</span></p>
+            <p style="margin-bottom: 8px; font-size: 0.95rem;"><strong>Costo de Envío:</strong> <span id="detail-shipping-cost">-</span></p>
+            <p style="margin-bottom: 8px; font-size: 0.95rem;"><strong>Dirección Detallada:</strong> <span id="detail-client-address">-</span></p>
+            <p style="margin-bottom: 0; font-size: 0.95rem;"><strong>Fecha de Registro:</strong> <span id="detail-order-date">-</span></p>
+          </div>
+        </div>
+        
+        <div class="order-detail-section">
+          <h4 style="font-family: var(--font-title); font-size: 1.4rem; color: var(--color-azul-royal); margin-bottom: 10px;">Productos Solicitados</h4>
+          <div class="table-responsive">
+            <table class="data-table" style="font-size: 0.9rem;">
+              <thead>
+                <tr>
+                  <th>Código SKU</th>
+                  <th>Producto</th>
+                  <th>Medida</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unit.</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="order-items-tbody">
+                <!-- Se rellena por JS -->
+              </tbody>
+            </table>
+          </div>
+          <div style="text-align: right; margin-top: 20px; font-size: 1.3rem; font-family: var(--font-title);">
+            <strong>Monto Total del Pedido: <span id="detail-order-total" style="color: var(--color-blanco-hueso);">$0</span></strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding: 1.5rem 2rem;">
+        <button type="button" class="btn-metal modal-cancel">Cerrar Detalle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LIGHTBOX PARA AMPLIAR IMÁGENES -->
+  <div id="modal-lightbox" class="modal-overlay hidden" style="background-color: rgba(8, 13, 22, 0.9);">
+    <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+      <button class="modal-close" style="position: absolute; top: -45px; right: 0; font-size: 2.8rem; color: #fff; background: transparent; border: none; cursor: pointer;">&times;</button>
+      <img id="lightbox-img" src="" alt="Ampliada" style="max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 4px; border: 2px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5), var(--glow-plata);">
+      <p id="lightbox-caption" style="margin-top: 15px; font-size: 1rem; color: var(--color-blanco-hueso); font-family: var(--font-body); font-weight: 500; text-align: center; letter-spacing: 0.5px;"></p>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR TOAST NOTIFICACIONES -->
+  <div id="toast-container" class="toast-wrapper"></div>
+
+  <!-- Scripts -->
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (contienen credenciales)
+.env
+
+# Configuración local de Claude
+.claude/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
